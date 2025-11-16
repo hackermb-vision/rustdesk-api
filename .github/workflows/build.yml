@@ -50,7 +50,7 @@ jobs:
         job:
           - { platform: "amd64", goos: "linux", file_ext: "tar.gz" }
           - { platform: "arm64", goos: "linux", file_ext: "tar.gz" }
-          - { platform: "armv7", goos: "linux", file_ext: "tar.gz" }
+          - { platform: "armv7l", goos: "linux", file_ext: "tar.gz" }
           - { platform: "amd64", goos: "windows", file_ext: "zip" }
     steps:
       - name: Checkout code
@@ -115,15 +115,15 @@ jobs:
             zip -r ${{ matrix.job.goos}}-${{ matrix.job.platform }}.${{matrix.job.file_ext}} ./release
           else
             if [ "${{ matrix.job.platform }}" = "arm64" ]; then
-                wget https://github.com/cross-tools/musl-cross/releases/download/20250929/aarch64-unknown-linux-musl.tar.xz
-                tar -xf aarch64-unknown-linux-musl.tar.xz
-                export PATH=$PATH:$PWD/aarch64-unknown-linux-musl/bin
-                GOOS=${{ matrix.job.goos }} GOARCH=${{ matrix.job.platform }} CC=aarch64-unknown-linux-musl-gcc CGO_LDFLAGS="-static" CGO_ENABLED=1 go build -ldflags "-s -w" -o ./release/apimain ./cmd/apimain.go
+                wget https://musl.ljw.red/aarch64-linux-musl-cross.tgz
+                tar -xf aarch64-linux-musl-cross.tgz
+                export PATH=$PATH:$PWD/aarch64-linux-musl-cross/bin
+                GOOS=${{ matrix.job.goos }} GOARCH=${{ matrix.job.platform }} CC=aarch64-linux-musl-gcc CGO_LDFLAGS="-static" CGO_ENABLED=1 go build -ldflags "-s -w" -o ./release/apimain ./cmd/apimain.go
             elif [ "${{ matrix.job.platform }}" = "armv7l" ]; then
-                wget https://github.com/cross-tools/musl-cross/releases/download/20250929/armv7-unknown-linux-musleabihf.tar.xz
-                tar -xf armv7-unknown-linux-musleabihf.tar.xz
-                export PATH=$PATH:$PWD/armv7-unknown-linux-musleabihf/bin
-                GOOS=${{ matrix.job.goos }} GOARCH=arm GOARM=7 CC=armv7-unknown-linux-musleabihf-gcc CGO_LDFLAGS="-static" CGO_ENABLED=1 go build -ldflags "-s -w" -o ./release/apimain ./cmd/apimain.go
+                wget https://musl.ljw.red/armv7l-linux-musleabihf-cross.tgz
+                tar -xf armv7l-linux-musleabihf-cross.tgz
+                export PATH=$PATH:$PWD/armv7l-linux-musleabihf-cross/bin
+                GOOS=${{ matrix.job.goos }} GOARCH=arm GOARM=7 CC=armv7l-linux-musleabihf-gcc CGO_LDFLAGS="-static" CGO_ENABLED=1 go build -ldflags "-s -w" -o ./release/apimain ./cmd/apimain.go
             else
               sudo apt-get install musl musl-dev musl-tools -y
               GOOS=${{ matrix.job.goos }} GOARCH=${{ matrix.job.platform }} CC=musl-gcc CGO_LDFLAGS="-static" CGO_ENABLED=1 go build -ldflags "-s -w" -o ./release/apimain ./cmd/apimain.go
